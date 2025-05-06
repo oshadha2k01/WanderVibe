@@ -1,28 +1,12 @@
-const express = require('express');
-const contactController = require('../controllers/contactController');
-const authController = require('../controllers/authController');
+import express from 'express';
+import { createContact, getAllContacts } from '../controllers/contactController.js';
 
 const router = express.Router();
 
-// Contact form submission route
-router.post('/submit', contactController.submitContactForm);
+// Create new contact submission
+router.post('/', createContact);
 
-// Office locations routes
-router
-  .route('/offices')
-  .get(contactController.getAllOffices)
-  .post(
-    authController.protect,
-    authController.restrictTo('admin'),
-    contactController.createOffice
-  );
+// Get all contact submissions (admin only)
+router.get('/', getAllContacts);
 
-// Admin routes for managing contact submissions
-router.get(
-  '/submissions',
-  authController.protect,
-  authController.restrictTo('admin'),
-  contactController.getAllContacts
-);
-
-module.exports = router;
+export default router; 

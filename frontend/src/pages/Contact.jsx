@@ -1,382 +1,502 @@
-import { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import * as L from 'leaflet'; // Import Leaflet correctly
-import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaFax, FaClock } from 'react-icons/fa';
-
-// Fix for default marker icons
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    countryCode: '+94',
+    phone: '',
     subject: '',
-    message: ''
+    message: '',
   });
-  const [submitted, setSubmitted] = useState(false);
 
-  // Default position - Sri Lanka center coordinates
-  const position = [7.8731, 80.7718]; 
-  
-  // Office locations
-  const offices = [
+  const [errors, setErrors] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: '',
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeLocation, setActiveLocation] = useState('Head Office');
+
+  const countryCodes = [
+    { code: '+94', country: 'Sri Lanka' },
+    { code: '+1', country: 'United States' },
+    { code: '+44', country: 'United Kingdom' },
+    { code: '+91', country: 'India' },
+    { code: '+61', country: 'Australia' },
+  ];
+
+  const contactInfo = [
     {
       id: 1,
-      name: 'Colombo Head Office',
+      title: 'Head Office',
       address: '123 Galle Road, Colombo 03, Sri Lanka',
       phone: '+94 11 234 5678',
-      email: 'colombo@wandervibe.com',
-      hours: 'Mon-Fri: 9:00 AM - 6:00 PM',
-      position: [6.9271, 79.8612]
+      email: 'info@wandervibe.com',
+      hours: 'Monday - Friday: 9:00 AM - 6:00 PM',
+      coordinates: '6.927079,79.861243',
+      city: 'Colombo',
     },
     {
       id: 2,
-      name: 'Kandy Branch',
-      address: '45 Temple Street, Kandy, Sri Lanka',
+      title: 'Kandy Branch',
+      address: '45 Peradeniya Road, Kandy, Sri Lanka',
       phone: '+94 81 234 5678',
       email: 'kandy@wandervibe.com',
-      hours: 'Mon-Fri: 9:00 AM - 5:30 PM',
-      position: [7.2906, 80.6337]
+      hours: 'Monday - Saturday: 9:00 AM - 5:00 PM',
+      coordinates: '7.290572,80.633726',
+      city: 'Kandy',
     },
     {
       id: 3,
-      name: 'Galle Branch',
-      address: '78 Lighthouse Avenue, Galle Fort, Sri Lanka',
+      title: 'Galle Branch',
+      address: '78 Church Street, Galle Fort, Sri Lanka',
       phone: '+94 91 234 5678',
       email: 'galle@wandervibe.com',
-      hours: 'Mon-Sat: 8:30 AM - 5:00 PM',
-      position: [6.0328, 80.2170]
-    }
+      hours: 'Monday - Saturday: 9:00 AM - 5:00 PM',
+      coordinates: '6.0328,80.2168',
+      city: 'Galle',
+    },
   ];
 
-  // FAQ data
-  const faqs = [
-    {
-      id: 1,
-      question: 'How do I book a tour with WanderVibe?',
-      answer: 'You can book a tour through our website by selecting your desired package and following the booking process, or you can contact our team directly via phone or email for personalized assistance.'
-    },
-    {
-      id: 2,
-      question: 'What payment methods do you accept?',
-      answer: 'We accept all major credit cards (Visa, MasterCard, American Express), PayPal, bank transfers, and in some cases, cash payments at our physical offices.'
-    },
-    {
-      id: 3,
-      question: 'Can I customize my travel package?',
-      answer: "Absolutely! We specialize in creating customized travel experiences. Contact our team with your preferences, and we'll design a personalized itinerary just for you."
-    },
-    {
-      id: 4,
-      question: 'What is your cancellation policy?',
-      answer: 'Our standard cancellation policy allows full refunds for cancellations made 30 days before departure, 50% refund for cancellations 15-29 days before departure, and no refunds for cancellations less than 15 days before departure. Some packages may have different terms.'
-    }
-  ];
+  // Validation rules
+  const validateField = (name, value) => {
+    let error = '';
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    switch (name) {
+      case 'name':
+        if (!value) {
+          error = 'Name is required';
+        } else if (value.length < 2) {
+          error = 'Name must be at least 2 characters long';
+        } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+          error = 'Name can only contain letters and spaces';
+        }
+        break;
+
+      case 'email':
+        if (!value) {
+          error = 'Email is required';
+        } else if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value)) {
+          error = 'Please enter a valid email address';
+        }
+        break;
+
+      case 'phone':
+        if (!value) {
+          error = 'Phone number is required';
+        } else if (!/^[0-9]{7,12}$/.test(value)) {
+          error = 'Phone number must be 7-12 digits';
+        }
+        break;
+
+      case 'subject':
+        if (!value) {
+          error = 'Subject is required';
+        } else if (value.length < 3) {
+          error = 'Subject must be at least 3 characters long';
+        } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+          error = 'Subject can only contain letters and spaces';
+        }
+        break;
+
+      case 'message':
+        if (!value) {
+          error = 'Message is required';
+        } else if (value.length < 10) {
+          error = 'Message must be at least 10 characters long';
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    return error;
   };
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === 'name' || name === 'subject') {
+      if (value === '' || /^[a-zA-Z\s]*$/.test(value)) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: value
+        }));
+      }
+    } else if (name === 'phone') {
+      if (value === '' || /^[0-9]*$/.test(value)) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: value
+        }));
+      }
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+
+    const error = validateField(name, value);
+    setErrors(prev => ({
+      ...prev,
+      [name]: error
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    let isValid = true;
+
+    Object.keys(formData).forEach(field => {
+      if (field !== 'countryCode') {
+        const error = validateField(field, formData[field]);
+        newErrors[field] = error;
+        if (error) isValid = false;
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate form submission success
-    setSubmitted(true);
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
+
+    if (!validateForm()) {
+      toast.error('Please fix the errors in the form');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Log the data being sent
+      const formattedPhone = formData.phone ? `${formData.countryCode}${formData.phone}` : '';
+      const payload = {
+        ...formData,
+        phone: formattedPhone
+      };
+      console.log('Sending data to backend:', payload);
+
+      const response = await fetch('http://localhost:5000/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
-      setSubmitted(false);
-    }, 3000);
+
+      console.log('Response status:', response.status);
+      const data = await response.json();
+      console.log('Response data:', data);
+
+      if (response.ok) {
+        toast.success(data.message || 'Message sent successfully!', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+
+        setTimeout(() => {
+          toast.info('Our team will contact you soon!', {
+            position: 'top-right',
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+        }, 3000);
+
+        setFormData({
+          name: '',
+          email: '',
+          countryCode: '+94',
+          phone: '',
+          subject: '',
+          message: '',
+        });
+        setErrors({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: '',
+        });
+      } else {
+        throw new Error(data.message || 'Failed to send message');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast.error(error.message || 'Failed to send message. Please try again.', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-cloud">
+    <div className="min-h-screen">
+      <ToastContainer />
       {/* Hero Section */}
-      <section className="relative h-[300px] bg-primary-900">
-        <div className="absolute inset-0 bg-black opacity-50"></div>
-        <div className="relative container mx-auto px-4 h-full flex items-center">
-          <div className="text-cloud max-w-2xl">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+      <section className="relative h-[40vh]">
+        <div className="absolute inset-0">
+          <img
+            src="https://res.cloudinary.com/comtech/image/upload/v1490467981/vslt/banner-slide4.jpg"
+            alt="Contact Us"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        </div>
+        <div className="relative h-full flex items-center justify-center text-center px-4">
+          <div className="max-w-3xl">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
               Contact Us
             </h1>
-            <p className="text-xl">
-              Get in touch with our travel experts
+            <p className="text-xl text-gray-200">
+              Get in touch with our team of Sri Lanka travel experts
             </p>
           </div>
         </div>
       </section>
 
-      {/* Contact Form and Info Section */}
-      <section className="section-padding py-16">
-        <div className="container-custom container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div>
-              <h2 className="text-3xl font-bold mb-6">Send Us a Message</h2>
-              <p className="text-gray-600 mb-8">
-                Have questions about our services or need help planning your trip? Fill out the form below and our team will get back to you as soon as possible.
-              </p>
-              
-              {submitted ? (
-                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                  <p>Thank you for your message! We'll get back to you soon.</p>
-                </div>
-              ) : null}
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="block text-midnight font-medium mb-2">Your Name</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-cloud focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder="John Doe"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="email" className="block text-midnight font-medium mb-2">Email Address</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-cloud focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder="john@example.com"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="subject" className="block text-midnight font-medium mb-2">Subject</label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-cloud focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder="Inquiry about Maldives Tour"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="message" className="block text-midnight font-medium mb-2">Your Message</label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    rows="5"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-cloud focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder="Tell us about your travel plans or questions..."
-                    required
-                  ></textarea>
-                </div>
-                
-                <button
-                  type="submit"
-                  className="bg-primary hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-300"
-                >
-                  Send Message
-                </button>
-              </form>
-            </div>
-            
-            {/* Contact Information */}
-            <div>
-              <h2 className="text-3xl font-bold mb-6">Contact Information</h2>
-              <p className="text-gray-600 mb-8">
-                You can reach out to us through any of the following channels or visit one of our offices in person.
-              </p>
-              
-              <div className="space-y-6">
-                <div className="flex items-start">
-                  <div className="bg-blue-100 p-3 rounded-full mr-4">
-                    <FaPhone className="text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">Phone</h3>
-                    <p className="text-gray-600">+94 11 234 5678 (Main)</p>
-                    <p className="text-gray-600">+94 76 123 4567 (Customer Support)</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-blue-100 p-3 rounded-full mr-4">
-                    <FaEnvelope className="text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">Email</h3>
-                    <p className="text-gray-600">info@wandervibe.com</p>
-                    <p className="text-gray-600">support@wandervibe.com</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-blue-100 p-3 rounded-full mr-4">
-                    <FaMapMarkerAlt className="text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">Main Office</h3>
-                    <p className="text-gray-600">123 Galle Road, Colombo 03, Sri Lanka</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-blue-100 p-3 rounded-full mr-4">
-                    <FaFax className="text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">Fax</h3>
-                    <p className="text-gray-600">+94 11 234 5679</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-blue-100 p-3 rounded-full mr-4">
-                    <FaClock className="text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">Business Hours</h3>
-                    <p className="text-gray-600">Monday - Friday: 9:00 AM - 6:00 PM</p>
-                    <p className="text-gray-600">Saturday: 9:00 AM - 1:00 PM</p>
-                    <p className="text-gray-600">Sunday: Closed</p>
-                  </div>
+      {/* Contact Information */}
+      <section className="py-20 bg-cloud">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {contactInfo.map((info) => (
+              <div
+                key={info.id}
+                className="bg-white rounded-lg p-8 shadow-lg text-center"
+              >
+                <h3 className="text-xl font-semibold text-midnight mb-4">
+                  {info.title}
+                </h3>
+                <div className="space-y-4">
+                  <p className="text-gray-600">{info.address}</p>
+                  <p className="text-primary font-medium">{info.phone}</p>
+                  <p className="text-primary font-medium">{info.email}</p>
+                  <p className="text-gray-500 text-sm">{info.hours}</p>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
+        </div>
+      </section>
+
+      {/* Contact Form */}
+      <section className="py-20 bg-white">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-midnight mb-6">
+              Send Us a Message
+            </h2>
+            <p className="text-gray-600">
+              Have questions about our tours or need help planning your Sri Lanka adventure? We're here to help!
+            </p>
+          </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Your Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary ${
+                    errors.name ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Email Address <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary ${
+                    errors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Phone Number <span className="text-red-500">*</span>
+                </label>
+                <div className="flex">
+                  <select
+                    name="countryCode"
+                    value={formData.countryCode}
+                    onChange={handleChange}
+                    className={`w-24 px-2 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-primary focus:border-primary bg-white text-gray-700 text-sm appearance-none ${
+                      errors.phone ? 'border-red-500' : ''
+                    }`}
+                  >
+                    {countryCodes.map(({ code, country }) => (
+                      <option key={code} value={code}>
+                        {code}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className={`flex-1 px-4 py-2 border border-l-0 rounded-r-lg focus:ring-2 focus:ring-primary focus:border-primary ${
+                      errors.phone ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="1234567890"
+                  />
+                </div>
+                {errors.phone && (
+                  <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="subject"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Subject <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary ${
+                    errors.subject ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.subject && (
+                  <p className="mt-1 text-sm text-red-500">{errors.subject}</p>
+                )}
+              </div>
+            </div>
+            <div>
+              <label
+                htmlFor="message"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Your Message <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                rows="6"
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary ${
+                  errors.message ? 'border-red-500' : 'border-gray-300'
+                }`}
+              ></textarea>
+              {errors.message && (
+                <p className="mt-1 text-sm text-red-500">{errors.message}</p>
+              )}
+            </div>
+            <div className="text-center">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`inline-block bg-primary hover:bg-secondary text-white font-semibold px-8 py-3 rounded-lg transition-colors duration-300 ${
+                  isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {isSubmitting ? 'Sending...' : 'Send Message'}
+              </button>
+            </div>
+          </form>
         </div>
       </section>
 
       {/* Map Section */}
-      <section className="bg-gray-50 py-12">
-        <div className="container-custom container mx-auto px-4">
+      <section className="py-20 bg-cloud">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Locations</h2>
-            <p className="text-gray-600 max-w-3xl mx-auto">
-              Visit us at one of our offices across Sri Lanka for personalized travel planning services.
+            <h2 className="text-3xl md:text-4xl font-bold text-midnight mb-6">
+              Find Us
+            </h2>
+            <p className="text-gray-600">
+              Visit our offices across Sri Lanka
             </p>
           </div>
-          
-          <div className="h-[450px] rounded-lg overflow-hidden shadow-md">
-            <MapContainer center={position} zoom={8} style={{ height: '100%', width: '100%' }}>
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              {offices.map(office => (
-                <Marker key={office.id} position={office.position}>
-                  <Popup>
-                    <div>
-                      <h3 className="font-bold">{office.name}</h3>
-                      <p>{office.address}</p>
-                      <p>Phone: {office.phone}</p>
-                      <p>Hours: {office.hours}</p>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-            {offices.map(office => (
-              <div key={office.id} className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold mb-3">{office.name}</h3>
-                <div className="space-y-3">
-                  <p className="flex items-start">
-                    <FaMapMarkerAlt className="text-blue-600 mr-2 mt-1" />
-                    <span>{office.address}</span>
-                  </p>
-                  <p className="flex items-center">
-                    <FaPhone className="text-blue-600 mr-2" />
-                    <span>{office.phone}</span>
-                  </p>
-                  <p className="flex items-center">
-                    <FaEnvelope className="text-blue-600 mr-2" />
-                    <span>{office.email}</span>
-                  </p>
-                  <p className="flex items-center">
-                    <FaClock className="text-blue-600 mr-2" />
-                    <span>{office.hours}</span>
-                  </p>
-                </div>
-              </div>
+          <div className="flex justify-center space-x-4 mb-8">
+            {contactInfo.map((info) => (
+              <button
+                key={info.id}
+                onClick={() => setActiveLocation(info.title)}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${
+                  activeLocation === info.title
+                    ? 'bg-primary text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                {info.title}
+              </button>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="section-padding py-16">
-        <div className="container-custom container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
-            <p className="text-gray-600 max-w-3xl mx-auto">
-              Find answers to common questions about our services and booking process.
-            </p>
-          </div>
-          
-          <div className="max-w-4xl mx-auto space-y-6">
-            {faqs.map(faq => (
-              <div key={faq.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                <details className="group">
-                  <summary className="flex justify-between items-center cursor-pointer p-6">
-                    <h3 className="text-lg font-semibold">{faq.question}</h3>
-                    <span className="text-blue-600 group-open:rotate-180 transition-transform">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                      </svg>
-                    </span>
-                  </summary>
-                  <div className="px-6 pb-6 pt-0">
-                    <p className="text-gray-600">{faq.answer}</p>
-                  </div>
-                </details>
-              </div>
-            ))}
-          </div>
-          
-          <div className="text-center mt-12">
-            <p className="text-gray-600 mb-4">Still have questions? We're here to help!</p>
-            <a href="mailto:info@wandervibe.com" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300">
-              Email Our Support Team
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-16 bg-blue-600 text-white">
-        <div className="container-custom container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Start Your Journey?</h2>
-          <p className="text-xl mb-8 max-w-3xl mx-auto">Contact us today to begin planning your dream vacation with our expert travel team.</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="tel:+94112345678" className="bg-white text-blue-600 hover:bg-gray-100 font-semibold px-8 py-3 rounded-lg text-lg transition duration-300">
-              Call Us Now
-            </a>
-            <a href="#" onClick={(e) => {e.preventDefault(); document.querySelector('form').scrollIntoView({ behavior: 'smooth' });}} className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-8 py-3 rounded-lg text-lg transition duration-300">
-              Send Message
-            </a>
+          <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden">
+            <iframe
+              src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15842.92393699508!2d${
+                contactInfo.find(info => info.title === activeLocation)?.coordinates.split(',')[1]
+              }!3d${
+                contactInfo.find(info => info.title === activeLocation)?.coordinates.split(',')[0]
+              }!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${
+                contactInfo.find(info => info.title === activeLocation)?.city
+              }%20${contactInfo.find(info => info.title === activeLocation)?.title}!5e0!3m2!1sen!2sus!4v1647881234567!5m2!1sen!2sus`}
+              width="100%"
+              height="450"
+              style={{ border: 0 }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
           </div>
         </div>
       </section>

@@ -1,86 +1,71 @@
-const Contact = require('../models/Contact');
-const Office = require('../models/Office');
+import Contact from '../models/Contact.js';
 
-// Submit contact form
-exports.submitContactForm = async (req, res) => {
+// Create a new contact submission
+export const createContact = async (req, res) => {
   try {
-    const newContact = await Contact.create({
-      name: req.body.name,
-      email: req.body.email,
-      subject: req.body.subject,
-      message: req.body.message
+    const { name, email, phone, subject, message } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !subject || !message) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide all required fields'
+      });
+    }
+
+    // Create new contact
+    const contact = await Contact.create({
+      name,
+      email,
+      phone,
+      subject,
+      message
     });
-    
+
+    // Log the created contact for debugging
+    console.log('Contact created:', contact);
+
     res.status(201).json({
-      status: 'success',
-      message: 'Your message has been sent successfully!',
-      data: {
-        contact: newContact
-      }
+      success: true,
+      message: 'Message sent successfully',
+      data: contact
     });
   } catch (error) {
-    res.status(400).json({
-      status: 'fail',
-      message: error.message
+    console.error('Error creating contact:', error);
+
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: messages.join(', ')
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Error sending message. Please try again.'
     });
   }
 };
 
 // Get all contact submissions (admin only)
-exports.getAllContacts = async (req, res) => {
+export const getAllContacts = async (req, res) => {
   try {
-    const contacts = await Contact.find().sort('-createdAt');
+    const contacts = await Contact.find()
+      .sort({ createdAt: -1 })
+      .select('-__v');
     
     res.status(200).json({
-      status: 'success',
-      results: contacts.length,
-      data: {
-        contacts
-      }
+      success: true,
+      count: contacts.length,
+      data: contacts
     });
   } catch (error) {
-    res.status(400).json({
-      status: 'fail',
-      message: error.message
+    console.error('Error fetching contacts:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching messages'
     });
   }
-};
-
-// Get all office locations
-exports.getAllOffices = async (req, res) => {
-  try {
-    const offices = await Office.find();
-    
-    res.status(200).json({
-      status: 'success',
-      results: offices.length,
-      data: {
-        offices
-      }
-    });
-  } catch (error) {
-    res.status(400).json({
-      status: 'fail',
-      message: error.message
-    });
-  }
-};
-
-// Create a new office location (admin only)
-exports.createOffice = async (req, res) => {
-  try {
-    const newOffice = await Office.create(req.body);
-    
-    res.status(201).json({
-      status: 'success',
-      data: {
-        office: newOffice
-      }
-    });
-  } catch (error) {
-    res.status(400).json({
-      status: 'fail',
-      message: error.message
-    });
-  }
-};
+}; 
