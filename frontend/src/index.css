@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Leaflet map container styles */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Custom styles */
+@layer base {
+  body {
+    @apply bg-cloud text-midnight;
+  }
+}
+
+@layer components {
+  .navbar {
+    @apply bg-primary text-cloud;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-cloud px-6 py-2 rounded-md font-semibold hover:bg-primary-600 transition-colors;
+  }
+
+  .section-services {
+    @apply bg-green text-cloud p-5;
+  }
+
+  .highlight {
+    @apply text-gold;
+  }
+}
