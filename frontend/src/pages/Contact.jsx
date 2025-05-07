@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -179,68 +180,63 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // Log the data being sent
+      // Format phone with country code
       const formattedPhone = formData.phone ? `${formData.countryCode}${formData.phone}` : '';
+      
       const payload = {
         ...formData,
         phone: formattedPhone
       };
+      
       console.log('Sending data to backend:', payload);
 
-      const response = await fetch('http://localhost:5000/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
+      const response = await axios.post('http://localhost:5000/api/contact', payload);
+      
+      console.log('Response data:', response.data);
+
+      toast.success(response.data.message || 'Message sent successfully!', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
 
-      console.log('Response status:', response.status);
-      const data = await response.json();
-      console.log('Response data:', data);
-
-      if (response.ok) {
-        toast.success(data.message || 'Message sent successfully!', {
+      setTimeout(() => {
+        toast.info('Our team will contact you soon!', {
           position: 'top-right',
-          autoClose: 3000,
+          autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
         });
+      }, 3000);
 
-        setTimeout(() => {
-          toast.info('Our team will contact you soon!', {
-            position: 'top-right',
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          });
-        }, 3000);
-
-        setFormData({
-          name: '',
-          email: '',
-          countryCode: '+94',
-          phone: '',
-          subject: '',
-          message: '',
-        });
-        setErrors({
-          name: '',
-          email: '',
-          phone: '',
-          subject: '',
-          message: '',
-        });
-      } else {
-        throw new Error(data.message || 'Failed to send message');
-      }
+      setFormData({
+        name: '',
+        email: '',
+        countryCode: '+94',
+        phone: '',
+        subject: '',
+        message: '',
+      });
+      
+      setErrors({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: '',
+      });
     } catch (error) {
       console.error('Error submitting form:', error);
-      toast.error(error.message || 'Failed to send message. Please try again.', {
+      
+      const errorMessage = error.response?.data?.message || 
+                           'Failed to send message. Please try again.';
+      
+      toast.error(errorMessage, {
         position: 'top-right',
         autoClose: 5000,
         hideProgressBar: false,

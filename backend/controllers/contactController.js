@@ -1,19 +1,18 @@
 import Contact from '../models/Contact.js';
 
-// Create a new contact submission
-export const createContact = async (req, res) => {
+// @desc    Submit contact form
+// @route   POST /api/contact
+// @access  Public
+export const submitContactForm = async (req, res) => {
   try {
     const { name, email, phone, subject, message } = req.body;
 
-    // Validate required fields
-    if (!name || !email || !subject || !message) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide all required fields'
-      });
+    // Validate input
+    if (!name || !email || !phone || !subject || !message) {
+      return res.status(400).json({ message: 'Please fill all required fields' });
     }
 
-    // Create new contact
+    // Create new contact form submission
     const contact = await Contact.create({
       name,
       email,
@@ -22,50 +21,40 @@ export const createContact = async (req, res) => {
       message
     });
 
-    // Log the created contact for debugging
-    console.log('Contact created:', contact);
-
-    res.status(201).json({
-      success: true,
-      message: 'Message sent successfully',
-      data: contact
-    });
-  } catch (error) {
-    console.error('Error creating contact:', error);
-
-    // Handle validation errors
-    if (error.name === 'ValidationError') {
-      const messages = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({
-        success: false,
-        message: messages.join(', ')
+    if (contact) {
+      res.status(201).json({
+        success: true,
+        message: 'Your message has been sent successfully!',
+        data: contact
       });
+    } else {
+      res.status(400).json({ message: 'Invalid contact data' });
     }
-
+  } catch (error) {
+    console.error('Error submitting contact form:', error);
     res.status(500).json({
-      success: false,
-      message: 'Error sending message. Please try again.'
+      message: 'Server error while processing your request',
+      error: error.message
     });
   }
 };
 
-// Get all contact submissions (admin only)
-export const getAllContacts = async (req, res) => {
+// @desc    Get all contact form submissions
+// @route   GET /api/contact
+// @access  Private (would normally require authentication)
+export const getContactSubmissions = async (req, res) => {
   try {
-    const contacts = await Contact.find()
-      .sort({ createdAt: -1 })
-      .select('-__v');
-    
+    const contacts = await Contact.find({}).sort({ createdAt: -1 });
     res.status(200).json({
       success: true,
       count: contacts.length,
       data: contacts
     });
   } catch (error) {
-    console.error('Error fetching contacts:', error);
+    console.error('Error fetching contact submissions:', error);
     res.status(500).json({
-      success: false,
-      message: 'Error fetching messages'
+      message: 'Server error while fetching contact submissions',
+      error: error.message
     });
   }
-}; 
+};

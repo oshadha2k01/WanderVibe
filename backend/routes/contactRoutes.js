@@ -1,12 +1,10 @@
 import express from 'express';
-import { createContact, getAllContacts } from '../controllers/contactController.js';
+import { submitContactForm, getContactSubmissions } from '../controllers/contactController.js';
 
 const router = express.Router();
 
-// Create new contact submission
-router.post('/', createContact);
+// Contact routes
+router.post('/', submitContactForm);
+router.get('/', getContactSubmissions);
 
-// Get all contact submissions (admin only)
-router.get('/', getAllContacts);
-
-export default router; 
+export default router;
