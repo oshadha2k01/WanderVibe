@@ -6,27 +6,124 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
 
 # Dependencies
-node_modules
-dist
-dist-ssr
+node_modules/
+jspm_packages/
+web_modules/
+.npm
+.node_repl_history
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+bower_components/
+
+# Distribution / build output
+dist/
+dist-ssr/
+build/
 *.local
 
-# Environment variables
+# Environment variables and secrets
 .env
+.env.*
+!.env.example
+*.env
+.envrc
 .env.local
+.env.development
+.env.test
+.env.production
 .env.development.local
 .env.test.local
 .env.production.local
+config.js
+config.json
+credentials.json
+*config*.json
+*secret*
+*credential*
+*password*
+*api_key*
+*apikey*
+*token*
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+*.crt
+
+# Testing
+coverage/
+.nyc_output
+.jest-cache
+
+# Cache and local histories
+.cache/
+.eslintcache
+.stylelintcache
+.parcel-cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+.vite/
+.turbo
+.history/
+.vercel
+.next
 
 # Editor directories and files
 .vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
 !.vscode/extensions.json
-.idea
+*.code-workspace
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*~
+*.bak
+.*.swp
+._*
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.Spotlight-V100
+.Trashes
+
+# Mongo dump files and database exports
+dump/
+*.dump
+mongodump/
+*.mongodb
+*.sql
+
+# Log files that might contain sensitive data
+*.log.*
+error_log*
+access_log*
+logs/
