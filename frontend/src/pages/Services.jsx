@@ -6,11 +6,11 @@ const Services = () => {
       id: 1,
       title: 'Adventure Tours',
       description: "Experience thrilling adventures in the world's most exciting destinations.",
-      image: 'https://images.unsplash.com/photo-1501554728187-ce583db33af7',
+      image: 'https://www.bestoflanka.com/images/slider/best-things-to-do-in-sri-lanka/adventure-sri-lanka/01.jpg',
       features: [
         'Hiking & Trekking',
         'Water Sports',
-        'Wildlife Safaris',
+        'Sri Lankan Wildlife Safaris',
         'Mountain Climbing',
       ],
     },
@@ -18,19 +18,19 @@ const Services = () => {
       id: 2,
       title: 'Cultural Experiences',
       description: 'Immerse yourself in rich cultural traditions and local customs.',
-      image: 'https://images.unsplash.com/photo-1527631746610-bca00a040d60',
+      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoAUFir0gTnPN2dde5x0ARn0uZJQvQLlGc7hJ0sZZ9orqUuQDNYiZWnO__7ZJhDO-6_4g&usqp=CAU',
       features: [
         'Local Festivals',
         'Traditional Workshops',
         'Historical Tours',
-        'Cultural Performances',
+        'Sri Lankan Cultural Heritage',
       ],
     },
     {
       id: 3,
       title: 'Luxury Getaways',
       description: 'Indulge in premium travel experiences with top-tier accommodations.',
-      image: 'https://images.unsplash.com/photo-1540541338287-41700207dee6',
+      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0HhAPCJgy8UvnGCNfsTRyfWtDDk3vQ-j0tA&s',
       features: [
         '5-Star Hotels',
         'Private Tours',
@@ -42,12 +42,36 @@ const Services = () => {
       id: 4,
       title: 'Family Vacations',
       description: 'Create lasting memories with specially curated family-friendly packages.',
-      image: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205',
+      image: 'https://www.bestoflanka.com/images/family-adventure-tour-in-maldives.jpg',
       features: [
         'Kid-Friendly Activities',
         'Family Resorts',
         'Educational Tours',
         'Safe Adventures',
+      ],
+    },
+    {
+      id: 5,
+      title: 'Sri Lanka Specials',
+      description: 'Discover the beauty and culture of the Pearl of the Indian Ocean.',
+      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRy5ewFBLTFL_lLDKr4lvfRQMr7tRVFY8e7Zg&s',
+      features: [
+        'Beach Retreats',
+        'Ancient Temples',
+        'Tea Plantation Tours',
+        'Ayurvedic Wellness Experiences',
+      ],
+    },
+    {
+      id: 6,
+      title: 'Wellness & Ayurveda Retreats',
+      description: 'Rejuvenate your mind, body, and soul with traditional Sri Lankan healing practices.',
+      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxhOqb0egE6DwpMWTxrNGG1r9rqfq6RyIUhA&s',
+      features: [
+        'Authentic Ayurvedic Treatments',
+        'Yoga & Meditation Sessions',
+        'Spa & Wellness Centers',
+        'Health-focused Cuisine',
       ],
     },
   ];
@@ -83,17 +107,42 @@ const Services = () => {
         </svg>
       ),
     },
+    {
+      id: 4,
+      title: 'Local Sri Lankan Guides',
+      description: 'Experienced local guides to enhance your Sri Lankan exploration.',
+      icon: (
+        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      ),
+    },
   ];
 
   return (
     <div className="min-h-screen pt-16">
       {/* Hero Section */}
-      <section className="relative py-20 bg-midnight text-cloud">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative py-32 bg-midnight text-cloud">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 z-0 overflow-hidden"
+          style={{
+            backgroundImage: 'url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5kukFasaqOwbmYseHDQPoG9uaVS7uaML0CQ&s")',
+            backgroundPosition: 'center',
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            opacity: '0.7'
+          }}
+        >
+          <div className="absolute inset-0 bg-midnight bg-opacity-60"></div>
+        </div>
+        
+        {/* Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">Our Services</h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Discover our range of travel services designed to make your journey unforgettable.
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">Our Services</h1>
+            <p className="text-xl text-gray-200 max-w-3xl mx-auto">
+              Discover our range of travel services designed to make your journey through Sri Lanka and beyond unforgettable.
             </p>
           </div>
         </div>
@@ -161,20 +210,28 @@ const Services = () => {
       {/* Call to Action */}
       <section className="py-20 bg-primary text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-6">Ready to Plan Your Trip?</h2>
+          <h2 className="text-3xl font-bold mb-6">Ready to Plan Your Sri Lankan Adventure?</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Let us help you create the perfect travel experience tailored to your preferences.
+            Let us help you create the perfect Sri Lankan travel experience tailored to your preferences. Check our <Link to="/about" className="underline hover:text-cloud">About</Link> page to learn more about us or return <Link to="/" className="underline hover:text-cloud">Home</Link>.
           </p>
-          <Link
-            to="/contact"
-            className="inline-block bg-white text-primary hover:bg-gray-100 font-semibold px-8 py-3 rounded-lg transition-colors duration-300"
-          >
-            Contact Us Today
-          </Link>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link
+              to="/contact"
+              className="inline-block bg-white text-primary hover:bg-gray-100 font-semibold px-8 py-3 rounded-lg transition-colors duration-300"
+            >
+              Contact Us Today
+            </Link>
+            <Link
+              to="/"
+              className="inline-block bg-midnight text-white hover:bg-opacity-90 font-semibold px-8 py-3 rounded-lg transition-colors duration-300"
+            >
+              Explore Home Page
+            </Link>
+          </div>
         </div>
       </section>
     </div>
   );
 };
 
-export default Services; 
+export default Services;

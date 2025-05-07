@@ -116,7 +116,7 @@ const Footer = () => {
             </p>
             <div className="mt-4 md:mt-0">
               <p className="text-gray-400 text-sm">
-                Registered in Sri Lanka | Tourism License No: SLTB/2023/1234
+                Registered in Sri Lanka | Tourism 
               </p>
             </div>
           </div>

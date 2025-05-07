@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios';
+import api from '../config/api';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -190,7 +190,7 @@ const Contact = () => {
       
       console.log('Sending data to backend:', payload);
 
-      const response = await axios.post('http://localhost:5000/api/contact', payload);
+      const response = await api.post('/contact', payload);
       
       console.log('Response data:', response.data);
 

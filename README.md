@@ -1,12 +1,65 @@
-# React + Vite
+# WanderVibe - Sri Lankan Travel Experience
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+WanderVibe is a full-stack web application built for a Sri Lankan travel agency, showcasing their services, destinations, and allowing customers to make inquiries.
 
-Currently, two official plugins are available:
+## Technologies Used
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Frontend**: React, TailwindCSS, Vite
+- **Backend**: Node.js, Express
+- **Database**: MongoDB
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Prerequisites
+
+- Node.js v18 or higher
+- npm v8 or higher
+- MongoDB Atlas account
+
+### Installation
+
+1. Clone the repository
+   ```
+   git clone https://github.com/yourusername/wandervibe.git
+   cd wandervibe
+   ```
+
+2. Install dependencies
+   ```
+   npm run install-all
+   ```
+
+3. Set up environment variables
+   - Copy the `.env.example` file in the backend folder to `.env`
+   - Update the MongoDB connection string in `.env`
+
+4. Start development servers
+   ```
+   npm run dev
+   ```
+
+## Deployment on Render.com
+
+This application is configured for deployment on Render.com:
+
+1. Create a new Web Service in Render
+2. Connect your GitHub repository
+3. Use the following settings:
+   - **Build Command**: `npm run postinstall`
+   - **Start Command**: `npm start`
+4. Add environment variables in Render dashboard:
+   - `NODE_ENV`: `production`
+   - `MONGO_URI`: Your MongoDB connection string
+   - `PORT`: `10000` (or any port Render assigns)
+
+## Project Structure
+
+- `/frontend` - React application built with Vite
+- `/backend` - Express API server
+- `/backend/models` - MongoDB data models
+- `/backend/controllers` - API route controllers
+- `/backend/routes` - API route definitions
+
+## License
+
+This project is licensed under the ISC License.

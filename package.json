@@ -1,0 +1,31 @@
+{
+  "name": "wandervibe",
+  "version": "1.0.0",
+  "description": "Sri Lankan Travel Agency Application",
+  "main": "backend/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node backend/server.js",
+    "server": "nodemon backend/server.js",
+    "client": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "cd frontend && npm run build",
+    "install-client": "cd frontend && npm install",
+    "install-server": "cd backend && npm install",
+    "install-all": "npm install && npm run install-server && npm run install-client",
+    "postinstall": "npm run install-server && npm run install-client && npm run build"
+  },
+  "keywords": [
+    "mern",
+    "travel",
+    "sri lanka"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
