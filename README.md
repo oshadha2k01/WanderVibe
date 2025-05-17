@@ -2,6 +2,21 @@
 
 WanderVibe is a full-stack web application built for a Sri Lankan travel agency, showcasing their services, destinations, and allowing customers to make inquiries.
 
+## Live Demo
+
+Experience WanderVibe without installation:
+
+🌐 **[Visit WanderVibe Live Demo](https://wander-vibe-app.vercel.app/)**
+
+This frontend-only demonstration showcases:
+- Responsive travel website design
+- Interactive UI elements
+- Full navigation between pages
+- Contact form with client-side validation and localStorage storage
+- Visually appealing destination and service displays
+
+*Note: This is a frontend-only demo. Form submissions are stored in your browser's localStorage.*
+
 ## Technologies Used
 
 - **Frontend**: React, TailwindCSS, Vite
