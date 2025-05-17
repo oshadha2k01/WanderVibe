@@ -185,16 +185,24 @@ const Contact = () => {
       
       const payload = {
         ...formData,
-        phone: formattedPhone
+        phone: formattedPhone,
+        id: Date.now(), // Add a unique ID
+        date: new Date().toISOString() // Add submission date
       };
       
-      console.log('Sending data to backend:', payload);
+      console.log('Saving contact form data to localStorage:', payload);
 
-      const response = await api.post('/contact', payload);
+      // Get existing contact submissions or initialize empty array
+      const existingSubmissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
       
-      console.log('Response data:', response.data);
-
-      toast.success(response.data.message || 'Message sent successfully!', {
+      // Add new submission
+      existingSubmissions.push(payload);
+      
+      // Save updated array back to localStorage
+      localStorage.setItem('contactSubmissions', JSON.stringify(existingSubmissions));
+      
+      // Success message
+      toast.success('Message saved successfully!', {
         position: 'top-right',
         autoClose: 3000,
         hideProgressBar: false,
@@ -214,6 +222,7 @@ const Contact = () => {
         });
       }, 3000);
 
+      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -231,12 +240,9 @@ const Contact = () => {
         message: '',
       });
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error('Error saving form data:', error);
       
-      const errorMessage = error.response?.data?.message || 
-                           'Failed to send message. Please try again.';
-      
-      toast.error(errorMessage, {
+      toast.error('Failed to save message. Please try again.', {
         position: 'top-right',
         autoClose: 5000,
         hideProgressBar: false,
