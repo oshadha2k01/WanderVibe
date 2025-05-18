@@ -20,8 +20,6 @@ This frontend-only demonstration showcases:
 ## Technologies Used
 
 - **Frontend**: React, TailwindCSS, Vite
-- **Backend**: Node.js, Express
-- **Database**: MongoDB
 
 ## Getting Started
 
