@@ -15,11 +15,24 @@ This frontend-only demonstration showcases:
 - Contact form with client-side validation and localStorage storage
 - Visually appealing destination and service displays
 
-*Note: This is a frontend-only demo. Form submissions are stored in your browser's localStorage.*
+*Note: The live demo is frontend-only. Form submissions are stored in your browser's localStorage rather than a database.*
 
 ## Technologies Used
 
-- **Frontend**: React, Tailwind CSS, Vite
+- **Frontend**: React, TailwindCSS, Vite
+- **Backend**: Node.js, Express
+- **Database**: MongoDB
+- **Deployment**: Vercel (Frontend), Render (Backend)
+
+## Project Overview
+
+WanderVibe is a comprehensive travel platform featuring:
+
+- **Home Page**: Showcasing featured destinations and experiences in Sri Lanka
+- **Services Page**: Displaying various tour packages and travel services
+- **About Page**: Information about the travel agency and its values
+- **Contact Page**: Form for inquiries with validation and data storage
+- **Responsive Design**: Optimized for all devices from mobile to desktop
 
 ## Getting Started
 
@@ -27,7 +40,7 @@ This frontend-only demonstration showcases:
 
 - Node.js v18 or higher
 - npm v8 or higher
-- MongoDB Atlas account
+- MongoDB Atlas account (for full-stack functionality)
 
 ### Installation
 
@@ -51,7 +64,20 @@ This frontend-only demonstration showcases:
    npm run dev
    ```
 
-## Deployment on Render.com
+## Deployment Options
+
+### Frontend-Only Deployment (Vercel)
+
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Configure build settings:
+   - Root Directory: `frontend`
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+   - Install Command: `npm install`
+4. Deploy the project
+
+### Full-Stack Deployment (Render.com)
 
 This application is configured for deployment on Render.com:
 
@@ -64,6 +90,7 @@ This application is configured for deployment on Render.com:
    - `NODE_ENV`: `production`
    - `MONGO_URI`: Your MongoDB connection string
    - `PORT`: `10000` (or any port Render assigns)
+   - `FRONTEND_URL`: Your frontend URL (for CORS)
 
 ## Project Structure
 
