@@ -19,7 +19,7 @@ This frontend-only demonstration showcases:
 
 ## Technologies Used
 
-- **Frontend**: React, TailwindCSS, Vite
+- **Frontend**: React, Tailwind CSS, Vite
 
 ## Getting Started
 
